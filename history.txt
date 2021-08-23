@@ -1,0 +1,30 @@
+Show balance: 100000000
+Stock status for: ['ser']
+Sale: ser, 200, 200
+Stock status for: ['ciasto']
+Sale: ciasto, 200, 200
+Show balance: 100080000
+Stock status for: ['ser', 'ciasto']
+Show balance: 100080000
+Purchase: drozdze, 10, 300
+Purchase: pizza, 50, 500
+Stock status for: ['pizza', 'ciasto']
+Sale: pizza, 100, 500
+Stock status for: ['pizza']
+Stock status for: ['ser', 'pizza']
+Sale: ciasto, 20, 20
+payment: 30303030, transfer
+payment: 1, comment
+payment: 12345, transfer
+Purchase: pizza, 200, 300
+Purchase: pizza, 200, 50
+Sale: pizza, 400, 150
+Sale: ser, 400, 50
+Stock status for: ['pizza', 'ser']
+Stock status for: ['ciasto']
+Stock status for: ['kolo']
+Stock status for: ['drozdze', 'ciasto', 'pizza', 'kolo']
+Purchase: szparagi, 5000, 10000
+Purchase: kalmary, 400, 20000
+Stock status for: ['bike']
+Stock status for: ['ser']

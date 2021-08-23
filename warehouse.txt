@@ -1,0 +1,6 @@
+ser,3720
+ciasto,3770
+drozdze,300
+pizza,200
+szparagi,10000
+kalmary,20000
