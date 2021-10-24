@@ -1,4 +1,21 @@
-ALLOWED_COMMANDS = ('payment', 'sale', 'purchase', 'account', 'warehouse', 'history', 'stop')
+# ALLOWED_COMMANDS: 'payment', 'sale', 'purchase', 'account', 'warehouse', 'history', 'stop'
+
+
+class Manager:
+    def __init__(self):
+        self.actions = {}
+
+    def assign(self, action_name):
+        def decorate(callback):
+            self.actions[action_name] = callback
+        return decorate
+
+    def execute(self, action_name):
+        if action_name not in self.actions:
+            print("Action not defined")
+        else:
+            self.actions[action_name](self)
+
 
 class Product:
     def __init__(self, nm, nb):
@@ -101,12 +118,100 @@ class Account:
             file.write(str(self.balance))
 
 
+my_manager = Manager()
 my_account = Account()
 my_warehouse = Warehouse(my_account)
 
 
+@my_manager.assign("account")
+def print_account_balance(my_manager):
+    print(f'Current account balance is {my_account.balance}.')
 
 
+@my_manager.assign("history")
+def print_action_history(my_manager):
+    my_warehouse.read_history()
+    for action in my_account.account_history:
+        print(action)
 
 
+@my_manager.assign("payment")
+def record_payment(my_manager):
+    print("Hello!\nTo record a payment type the amount and the comment.\n"
+          "When you are done with updates, type >stop< to finish.")
+    while True:
+        input_string = input("New payment: ")
+        input_list = input_string.split()
+        if input_list[0] == 'stop':
+            my_warehouse.save_history()
+            my_account.save_account()
+            break
+        if len(input_list) >= 2:  # if enough parameters given
+            my_account.add_payment(input_list)
+        continue
 
+
+@my_manager.assign("purchase")
+def record_purchase(my_manager):
+    print("Hello!\nTo note a purchase type: product name, its price and number of purchased products.\n"
+          "When you are done with purchasing, type >stop< to finish.")
+    while True:
+        input_string = input("Write your purchase: ")
+        input_list = input_string.split()
+        if input_list[0] == 'stop':
+            my_warehouse.save_stock()
+            my_warehouse.save_history()
+            my_account.save_account()
+            break
+        if len(input_list) < 3:  # if not enough parameters given
+            continue
+        input_product = Product(input_list[0], int(input_list[2]))  # adding product with its name and number
+        product_price = int(input_list[1])
+        if product_price < 0 or input_product.number < 0:  # price and number must be positive
+            print('Error - price and number must be positive.')
+            continue  # try again
+        if not my_warehouse.add_product(input_product, product_price):  # gdy nie udało się kupić produktu
+            print(f'Error - not enough money!')
+        continue
+
+
+@my_manager.assign("sale")
+def record_sale(my_manager):
+    print("Hello!\nTo note a sale write: product name, its price and number of sold products.\n"
+          "When you are done with updates, type >stop< to finish.")
+    while True:
+        input_string = input("Write your sale: ")
+        input_list = input_string.split()
+        if input_list[0] == 'stop':
+            my_warehouse.save_stock()
+            my_warehouse.save_history()
+            my_account.save_account()
+            break
+        if len(input_list) < 3:  # if not enough parameters given
+            continue
+        input_product = Product(input_list[0], int(input_list[2]))  # adding product with its name and number
+        product_price = int(input_list[1])
+        if product_price < 0 or input_product.number < 0:  # price and number must be positive
+            print('Error - price and number must be positive.')
+            continue  # try again
+        if not my_warehouse.remove_product(input_product, product_price):  # gdy nie udało się odjąć produktu
+            print(f'Error - out of stock')
+        continue
+
+
+@my_manager.assign("warehouse")
+def show_stock(my_manager):
+    print("Hello!\nTo see the stock status of a product type names of chosen products after space."
+          "When you are done, type >stop< to finish.")
+
+    while True:
+        input_string = input("Product names: ")
+        input_list = input_string.split()
+        if input_list[0] == 'stop':
+            my_warehouse.save_stock()
+            my_warehouse.save_history()
+            my_account.save_account()
+            break
+        print(f'Stock status:')
+        my_warehouse.show_products(input_list)
+        continue

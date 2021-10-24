@@ -1,6 +1,13 @@
-from accountant import Account, Warehouse, my_warehouse, my_account
+from accountant import my_manager
 
-my_warehouse.read_history()
+my_manager.execute("history")
 
-for action in my_account.account_history:
-    print(action)
+
+
+
+# from accountant import Account, Warehouse, my_warehouse, my_account
+#
+# my_warehouse.read_history()
+#
+# for action in my_account.account_history:
+#     print(action)

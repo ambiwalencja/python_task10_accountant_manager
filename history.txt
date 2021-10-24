@@ -28,3 +28,7 @@ Purchase: szparagi, 5000, 10000
 Purchase: kalmary, 400, 20000
 Stock status for: ['bike']
 Stock status for: ['ser']
+Sale: ser, 12, 10
+Purchase: ciasto, 20, 120
+Purchase: sosik, 30, 100
+Stock status for: ['ser', 'ciasto', 'kalmary', 'sosik']

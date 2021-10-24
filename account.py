@@ -1,3 +1,6 @@
-from accountant import Account, Warehouse, Product, my_account
+from accountant import my_manager
 
-print(f'Current account balance is {my_account.balance}.')
+my_manager.execute("account")
+
+
+# print(f'Current account balance is {my_account.balance}.')
