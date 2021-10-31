@@ -1,7 +1,9 @@
-ser,3710
-ciasto,3890
+ser,3676
+ciasto,4015
 drozdze,300
 pizza,200
 szparagi,10000
 kalmary,20000
 sosik,100
+nowy produkt,307
+nowszy produkt,100

@@ -32,3 +32,18 @@ Sale: ser, 12, 10
 Purchase: ciasto, 20, 120
 Purchase: sosik, 30, 100
 Stock status for: ['ser', 'ciasto', 'kalmary', 'sosik']
+Sale: ser, 12, 34
+Purchase: ciasto, 123, 345
+Payment: 1000, ['wp³ata']
+Sale: ciasto, 10000000000, 100
+Sale: ciasto, 12, 120
+Payment: 12345, ['']
+Payment: 60000, ['']
+Purchase: nowy produkt, 120, 10
+Purchase: nowszy produkt, 10, 100
+Purchase: nowy produkt, 100, 297
+Stock status for: ['ser', 'ciasto', 'nowy', 'produkt']
+Stock status for: ['ciasto']
+Stock status for: ['ciasto', ' ser', ' nowy produkt']
+Stock status for: ['ciasto', 'ser', 'nowy produkt']
+Stock status for: ['ciasto', 'ser', 'nowy produkt']

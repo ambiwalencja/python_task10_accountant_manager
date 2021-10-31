@@ -1,22 +1,3 @@
-# ALLOWED_COMMANDS: 'payment', 'sale', 'purchase', 'account', 'warehouse', 'history', 'stop'
-
-
-class Manager:
-    def __init__(self):
-        self.actions = {}
-
-    def assign(self, action_name):
-        def decorate(callback):
-            self.actions[action_name] = callback
-        return decorate
-
-    def execute(self, action_name):
-        if action_name not in self.actions:
-            print("Action not defined")
-        else:
-            self.actions[action_name](self)
-
-
 class Product:
     def __init__(self, nm, nb):
         self.name = nm  # unikalna
@@ -32,7 +13,6 @@ class Warehouse:
         self.account = local_account
         self.read_warehouse()  # tworząc obiekt wywołujemy metodę czytającą z pliku,
                                 # zapisującą dane do słownika produktów
-        # self.read_history()  # i tak samo z historią, też ją ładujemy od razu
 
     def read_warehouse(self):
         with open("warehouse.txt", "r") as file:
@@ -118,100 +98,46 @@ class Account:
             file.write(str(self.balance))
 
 
-my_manager = Manager()
 my_account = Account()
 my_warehouse = Warehouse(my_account)
 
 
-@my_manager.assign("account")
-def print_account_balance(my_manager):
-    print(f'Current account balance is {my_account.balance}.')
+# dekorator, który zajmuje się wykonaniem tych czynności, które powtarzają się przy rejestrowaniu płatności, sprzedaży
+# i zakupu, czyli pobiera informacje ze standardowego wejścia i pakuje je do zmiennych, a następnie po wykonaniu
+# funkcji zapisuje do plików historię, stan konta i stan magazynu
+def get_input_and_save(label, int_before, str_count, int_after): # label - message to user, int_before - number of
+    # integer values needed as input arguments for the function before the string value, then str_count - number of
+    # strings needed for the function, and int_after - number of integers after string value. eg. if for my
+    # function I need product name (str), price (int) and number (int), the values here will be 0, 1, 2.
+    def decorate(callback):
+        while True:
+            input_string = input(label)
+            input_list = input_string.split()  # lista stringów
+            if input_list[0] == 'stop':
+                my_warehouse.save_stock()
+                my_warehouse.save_history()
+                my_account.save_account()
+                break
+            if len(input_list) < (int_before + str_count + int_after):  # if not enough parameters given
+                print("Please give appropriate number of arguments.")
+                continue
+            arg_before = [int(arg) for arg in input_list[0:int_before]]  # skrótowy zapis pętli. arg_before to lista
+            # (bo jest w []) parametrów przekształconych w integery - z całej listy parametrów iput_list wzięliśmy
+            # slice z int_before parametrów z początku
+            input_list_int_after = input_list[-int_after:] if int_after else []  # dodałam tę linijkę, ponieważ
+            # input_list[-int_after:] nie działa, gdy int_after = 0, zwraca wtedy pełną listę
+            arg_after = [int(arg) for arg in input_list_int_after]  # i od końca
+            glue = " "
+            arg_str = [glue.join(input_list[int_before:-int_after])]  # a wszystko, co było pomiędzy, łączymy razem
+            #                                                             w stringa poprzedzielanego spacjami
+            args = arg_before + arg_str + arg_after  # następnie łączę otrzymane, przekształcone odpowiednio
+            #                                        argumenty w listę, którą wciągnę do funkcji działającej (callback)
+            #                                        w takiej formie, w jakiej ich potrzebuję
+            if not callback(*args):  # dzięki gwiazdce nie muszę w definicji ani w wywołaniu funkcji callback podawać
+            # listy (bo lista jest jednym obiektem) składającej się z argumentów, których potrzebuję, ale mogę podać
+            # po kolei już argumenty, które mnie interesują i zostaną one wszystkie zinterpretowane
+                continue
+    return decorate
 
 
-@my_manager.assign("history")
-def print_action_history(my_manager):
-    my_warehouse.read_history()
-    for action in my_account.account_history:
-        print(action)
 
-
-@my_manager.assign("payment")
-def record_payment(my_manager):
-    print("Hello!\nTo record a payment type the amount and the comment.\n"
-          "When you are done with updates, type >stop< to finish.")
-    while True:
-        input_string = input("New payment: ")
-        input_list = input_string.split()
-        if input_list[0] == 'stop':
-            my_warehouse.save_history()
-            my_account.save_account()
-            break
-        if len(input_list) >= 2:  # if enough parameters given
-            my_account.add_payment(input_list)
-        continue
-
-
-@my_manager.assign("purchase")
-def record_purchase(my_manager):
-    print("Hello!\nTo note a purchase type: product name, its price and number of purchased products.\n"
-          "When you are done with purchasing, type >stop< to finish.")
-    while True:
-        input_string = input("Write your purchase: ")
-        input_list = input_string.split()
-        if input_list[0] == 'stop':
-            my_warehouse.save_stock()
-            my_warehouse.save_history()
-            my_account.save_account()
-            break
-        if len(input_list) < 3:  # if not enough parameters given
-            continue
-        input_product = Product(input_list[0], int(input_list[2]))  # adding product with its name and number
-        product_price = int(input_list[1])
-        if product_price < 0 or input_product.number < 0:  # price and number must be positive
-            print('Error - price and number must be positive.')
-            continue  # try again
-        if not my_warehouse.add_product(input_product, product_price):  # gdy nie udało się kupić produktu
-            print(f'Error - not enough money!')
-        continue
-
-
-@my_manager.assign("sale")
-def record_sale(my_manager):
-    print("Hello!\nTo note a sale write: product name, its price and number of sold products.\n"
-          "When you are done with updates, type >stop< to finish.")
-    while True:
-        input_string = input("Write your sale: ")
-        input_list = input_string.split()
-        if input_list[0] == 'stop':
-            my_warehouse.save_stock()
-            my_warehouse.save_history()
-            my_account.save_account()
-            break
-        if len(input_list) < 3:  # if not enough parameters given
-            continue
-        input_product = Product(input_list[0], int(input_list[2]))  # adding product with its name and number
-        product_price = int(input_list[1])
-        if product_price < 0 or input_product.number < 0:  # price and number must be positive
-            print('Error - price and number must be positive.')
-            continue  # try again
-        if not my_warehouse.remove_product(input_product, product_price):  # gdy nie udało się odjąć produktu
-            print(f'Error - out of stock')
-        continue
-
-
-@my_manager.assign("warehouse")
-def show_stock(my_manager):
-    print("Hello!\nTo see the stock status of a product type names of chosen products after space."
-          "When you are done, type >stop< to finish.")
-
-    while True:
-        input_string = input("Product names: ")
-        input_list = input_string.split()
-        if input_list[0] == 'stop':
-            my_warehouse.save_stock()
-            my_warehouse.save_history()
-            my_account.save_account()
-            break
-        print(f'Stock status:')
-        my_warehouse.show_products(input_list)
-        continue
